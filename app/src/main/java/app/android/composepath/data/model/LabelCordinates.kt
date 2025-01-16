@@ -1,4 +1,4 @@
-package app.android.composepath.ui.canvas
+package app.android.composepath.data.model
 
 import androidx.compose.ui.graphics.Color
 

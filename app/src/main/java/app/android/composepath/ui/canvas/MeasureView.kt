@@ -2,8 +2,12 @@ package app.android.composepath.ui.canvas
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -17,7 +21,12 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import app.android.composepath.utils.mods
+import app.android.composepath.data.model.MeasureState
+import androidx.compose.runtime.*
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+import app.android.composepath.utils.isActual
+
 
 private const val TAG = "MeasureView"
 
@@ -32,14 +41,32 @@ fun MeasureView(
     val width = configuration.screenWidthDp * density
     val height = configuration.screenHeightDp * density
 
+    var dragOffset by remember {
+        mutableStateOf(Offset(0f,0f))
+    }
+
     Log.d(TAG, "Screen width and height => $width, $height")
     val textMeasurer = rememberTextMeasurer()
-    Box(modifier = modifier) {
+    Box(modifier = modifier.pointerInput(Unit, Unit, {
+        detectDragGestures(onDragStart = { offset ->
+            dragOffset = offset
+            Log.d(TAG, "onDragStart: $dragOffset")
+        }, onDrag = { pic, offset ->
+            pic.consume()
+            dragOffset = offset
+            Log.d(TAG, "onDrag: $dragOffset")
+        }, onDragEnd = {
+
+        })
+    })) {
         view.invoke()
         Canvas(modifier = Modifier) {
+            if (dragOffset.isActual()) {
+                drawCircle(color = Color.Black, radius = 8f, center = dragOffset)
+            }
             //x axis
             for (axisValue in measureState.step until width.toInt() step measureState.step) {
-                val mainSplit = (axisValue mods (measureState.step * 2))?.toInt() == 0
+                val mainSplit = (axisValue.mod(measureState.step * 2)) == 0
                 if (mainSplit) {
                     DrawMarkers(
                         color = Color.DarkGray,
@@ -85,7 +112,7 @@ fun MeasureView(
             }
             // y axis
             for (axisValue in measureState.step until height.toInt() step measureState.step) {
-                val mainSplit = (axisValue mods (measureState.step * 2))?.toInt() == 0
+                val mainSplit = (axisValue.mod(measureState.step * 2)) == 0
                 if (mainSplit) {
                     DrawMarkers(
                         color = Color.DarkGray,
@@ -149,7 +176,7 @@ fun MeasureView(
                         )
                     }
                 }
-                if ((cordinate.x mods measureState.step)?.toInt() != 0) {
+                if (cordinate.x.toInt().mod(measureState.step) != 0) {
                     DrawMarkers(
                         color = cordinate.color,
                         start = Offset(cordinate.x, 0f),
@@ -163,7 +190,8 @@ fun MeasureView(
                         offset = Offset(cordinate.x + 5, 15f)
                     )
                 }
-                if ((cordinate.y mods measureState.step)?.toInt() != 0) {
+
+                if (cordinate.y.toInt().mod(measureState.step) != 0) {
                     DrawMarkers(
                         color = cordinate.color,
                         start = Offset(0f, cordinate.y),
