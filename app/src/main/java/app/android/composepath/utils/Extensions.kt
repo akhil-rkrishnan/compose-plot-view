@@ -4,7 +4,9 @@ import android.os.Build
 import android.view.View
 import android.view.WindowInsets
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 
 fun ComponentActivity.hideStatusBar() {
     window.decorView.post {

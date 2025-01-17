@@ -23,9 +23,9 @@ class MainActivity : ComponentActivity() {
             ComposePathTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val measureState = MeasureState(
-                        step = 250,
+                        step = 100,
                         labelCordinates = listOf(
-                            LabelCordinates(
+                            /*LabelCordinates(
                                 100f, 100f, Color.Magenta
                             ), LabelCordinates(
                                 800f, 300f, Color.Blue
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                                 500f, 100f, Color.Red
                             ), LabelCordinates(
                                 501f, 350f, Color.Cyan
-                            )
+                            )*/
                         )
                     )
                     MeasureView(
