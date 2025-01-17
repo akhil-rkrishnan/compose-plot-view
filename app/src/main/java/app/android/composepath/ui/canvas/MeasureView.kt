@@ -26,17 +26,23 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.android.composepath.data.model.MeasureState
 import app.android.composepath.utils.isActual
 import app.android.composepath.utils.trimDecimals
+import app.android.composepath.R
 
 
 private const val TAG = "MeasureView"
@@ -53,7 +59,7 @@ fun MeasureView(
     val height = configuration.screenHeightDp * density
 
     var dragOffset by remember {
-        mutableStateOf<Offset?>(Offset(0f, 0f))
+        mutableStateOf<Offset?>(null)
     }
 
     Log.d(TAG, "Screen width and height => $width, $height")
@@ -258,7 +264,33 @@ private fun DrawScope.DrawMarkers(color: Color, start: Offset, end: Offset, stro
 private fun DrawScope.DrawText(
     value: String,
     textMeasurer: TextMeasurer,
-    style: TextStyle = TextStyle(color = Color.LightGray, fontSize = 12.sp),
+    style: TextStyle = TextStyle(
+        color = Color.LightGray,
+        fontSize = 12.sp,
+        fontFamily = FontFamily(Font(resId = R.font.roboto_regular))
+    ),
+    offset: Offset
+) {
+    val textLayoutResult: TextLayoutResult = textMeasurer.measure(
+        text = value,
+        style = style
+    )
+
+    // Draw the text at the desired position
+    drawText(
+        textLayoutResult = textLayoutResult,
+        topLeft = offset
+    )
+}
+
+private fun DrawScope.DrawText(
+    value: AnnotatedString,
+    textMeasurer: TextMeasurer,
+    style: TextStyle = TextStyle(
+        color = Color.LightGray,
+        fontSize = 12.sp,
+        fontFamily = FontFamily(Font(resId = R.font.roboto_regular))
+    ),
     offset: Offset
 ) {
     val textLayoutResult: TextLayoutResult = textMeasurer.measure(
@@ -288,8 +320,8 @@ private fun DrawScope.DynamicHover(
     textMeasurer: TextMeasurer
 ) {
     if (dragOffset == null) return
-    val actualX = dragOffset.x// + measureState.hoverCrossOver.circleRadius
-    val actualY = dragOffset.y //+ measureState.hoverCrossOver.circleRadius
+    val actualX = dragOffset.x
+    val actualY = dragOffset.y
     for (y in 0 until actualY.toInt() step measureState.dashStep) {
         DrawIntersection(
             color = Color.LightGray,
@@ -313,12 +345,24 @@ private fun DrawScope.DynamicHover(
         )
     }
     drawCircle(color = Color.Black, radius = 10f, center = dragOffset)
+    val annotatedString = buildAnnotatedString {
+        withStyle(SpanStyle(color = Color.Red)) {
+            append("(X: ")
+        }
+        append(actualX.trimDecimals())
+        append(", ")
+        withStyle(SpanStyle(color = Color(0xff4eb175))){
+            append("Y: ")
+        }
+        append(actualY.trimDecimals())
+        append(")")
+    }
     DrawText(
-        value = "(${actualX.trimDecimals()}, ${actualY.trimDecimals()})",
+        value = annotatedString,
         style = TextStyle(
             color = measureState.hoverCrossOver.color,
-            fontSize = 20.sp,
-            fontFamily = FontFamily.Monospace
+            fontSize = 15.sp,
+            fontFamily = FontFamily(Font(R.font.roboto_regular))
         ),
         textMeasurer = textMeasurer,
         offset = Offset(actualX + 15f, actualY)
