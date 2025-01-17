@@ -1,22 +1,25 @@
 package app.android.composepath.ui.canvas
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -27,12 +30,13 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.android.composepath.data.model.MeasureState
 import app.android.composepath.utils.isActual
+import app.android.composepath.utils.trimDecimals
 
 
 private const val TAG = "MeasureView"
@@ -49,14 +53,14 @@ fun MeasureView(
     val height = configuration.screenHeightDp * density
 
     var dragOffset by remember {
-        mutableStateOf(Offset(0f, 0f))
+        mutableStateOf<Offset?>(Offset(0f, 0f))
     }
 
     Log.d(TAG, "Screen width and height => $width, $height")
     val textMeasurer = rememberTextMeasurer()
     Box(modifier = modifier.pointerInput(Unit, Unit, {
         detectTapGestures(onDoubleTap = { offset ->
-            dragOffset = Offset(0f, 0f)
+            dragOffset = null
         }, onTap = { offset ->
             if (!dragOffset.isActual()) {
                 dragOffset = offset
@@ -66,30 +70,36 @@ fun MeasureView(
         })
     })) {
         view.invoke()
-        if (dragOffset.isActual()) {
-            val dpX = with(LocalDensity.current) { dragOffset.x.toDp() }
-            val dpY = with(LocalDensity.current) { dragOffset.y.toDp() }
+        AnimatedVisibility(
+            visible = dragOffset.isActual(),
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically()
+        ) {
+            val dpX = with(LocalDensity.current) { dragOffset?.x?.toDp() ?: 0.dp }
+            val dpY = with(LocalDensity.current) { dragOffset?.y?.toDp() ?: 0.dp }
             Box(
                 modifier = Modifier
-                    .size(50.dp, 50.dp)
                     .offset(dpX, dpY)
                     .background(Color.Red)
-                    .animateContentSize()
                     .pointerInput(Unit, Unit) {
                         detectDragGestures(onDrag = { pic, offset ->
                             pic.consume()
-                            dragOffset += pic.position
-                        }, onDragStart = {
-                            //dragOffset = it
-                        }, onDragEnd = {
-
+                            dragOffset = dragOffset?.let {
+                                it + pic.position
+                            }
                         })
                     }
-                    .drawBehind {
-                        drawCircle(color = Color.Black, radius = 8f)
-                    })
+                    .animateContentSize(animationSpec = tween(200, 100))
+            )
         }
         Canvas(modifier = Modifier) {
+            if (measureState.hoverCrossOver.isEnabled) {
+                DynamicHover(
+                    dragOffset = dragOffset,
+                    measureState = measureState,
+                    textMeasurer = textMeasurer
+                )
+            }
             //x axis
             for (axisValue in measureState.step until width.toInt() step measureState.step) {
                 val mainSplit = (axisValue.mod(measureState.step * 2)) == 0
@@ -111,7 +121,7 @@ fun MeasureView(
                     DrawText(
                         value = "${axisValue}x",
                         textMeasurer = textMeasurer,
-                        color = Color.Black,
+                        style = TextStyle(color = Color.Black),
                         offset = Offset(axisValue.toFloat() - 23, 30f)
                     )
                 } else {
@@ -157,7 +167,7 @@ fun MeasureView(
                     DrawText(
                         value = "${axisValue}y",
                         textMeasurer = textMeasurer,
-                        color = Color.Black,
+                        style = TextStyle(color = Color.Black),
                         offset = Offset(30f, axisValue.toFloat() - 10)
                     )
                 } else {
@@ -185,7 +195,7 @@ fun MeasureView(
             measureState.labelCordinates.forEach { cordinate ->
                 if (cordinate.showPointIntersection) {
                     val dashStep = 20
-                    for (y in 0 until cordinate.y.toInt() step dashStep) {
+                    for (y in 0 until cordinate.y.toInt() step measureState.dashStep) {
                         DrawIntersection(
                             cordinate.color,
                             start = Offset(cordinate.x, y.toFloat()),
@@ -193,7 +203,7 @@ fun MeasureView(
                             strokeWidth = 3f
                         )
                     }
-                    for (x in 0 until cordinate.x.toInt() step dashStep) {
+                    for (x in 0 until cordinate.x.toInt() step measureState.dashStep) {
                         DrawIntersection(
                             cordinate.color,
                             start = Offset(x.toFloat(), cordinate.y),
@@ -211,7 +221,7 @@ fun MeasureView(
                     )
                     DrawText(
                         value = cordinate.x.toString(),
-                        color = cordinate.color,
+                        style = TextStyle(color = cordinate.color),
                         textMeasurer = textMeasurer,
                         offset = Offset(cordinate.x + 5, 15f)
                     )
@@ -226,7 +236,7 @@ fun MeasureView(
                     )
                     DrawText(
                         value = cordinate.y.toString(),
-                        color = cordinate.color,
+                        style = TextStyle(color = cordinate.color),
                         textMeasurer = textMeasurer,
                         offset = Offset(15f, cordinate.y)
                     )
@@ -247,14 +257,13 @@ private fun DrawScope.DrawMarkers(color: Color, start: Offset, end: Offset, stro
 
 private fun DrawScope.DrawText(
     value: String,
-    color: Color = Color.LightGray,
-    fontSize: TextUnit = 12.sp,
     textMeasurer: TextMeasurer,
+    style: TextStyle = TextStyle(color = Color.LightGray, fontSize = 12.sp),
     offset: Offset
 ) {
     val textLayoutResult: TextLayoutResult = textMeasurer.measure(
         text = value,
-        style = TextStyle(color = color, fontSize = fontSize)
+        style = style
     )
 
     // Draw the text at the desired position
@@ -271,4 +280,47 @@ private fun DrawScope.DrawIntersection(
     strokeWidth: Float
 ) {
     drawLine(color = color, start = start, end = end, strokeWidth = strokeWidth)
+}
+
+private fun DrawScope.DynamicHover(
+    dragOffset: Offset?,
+    measureState: MeasureState,
+    textMeasurer: TextMeasurer
+) {
+    if (dragOffset == null) return
+    val actualX = dragOffset.x// + measureState.hoverCrossOver.circleRadius
+    val actualY = dragOffset.y //+ measureState.hoverCrossOver.circleRadius
+    for (y in 0 until actualY.toInt() step measureState.dashStep) {
+        DrawIntersection(
+            color = Color.LightGray,
+            start = Offset(actualX, y.toFloat()),
+            end = Offset(
+                actualX,
+                (y + (measureState.dashStep / 2)).toFloat()
+            ),
+            strokeWidth = 3f
+        )
+    }
+    for (x in 0 until actualX.toInt() step measureState.dashStep) {
+        DrawIntersection(
+            color = Color.LightGray,
+            start = Offset(x.toFloat(), actualY),
+            end = Offset(
+                (x + (measureState.dashStep / 2)).toFloat(),
+                actualY
+            ),
+            strokeWidth = 3f
+        )
+    }
+    drawCircle(color = Color.Black, radius = 10f, center = dragOffset)
+    DrawText(
+        value = "(${actualX.trimDecimals()}, ${actualY.trimDecimals()})",
+        style = TextStyle(
+            color = measureState.hoverCrossOver.color,
+            fontSize = 20.sp,
+            fontFamily = FontFamily.Monospace
+        ),
+        textMeasurer = textMeasurer,
+        offset = Offset(actualX + 15f, actualY)
+    )
 }
