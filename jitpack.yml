@@ -1,5 +1,5 @@
-#jdk:
-#  - openjdk21
+jdk:
+  - openjdk21
 #  - sdk update
 #before_install:
 #  - sdk install java 21.0.3-open
