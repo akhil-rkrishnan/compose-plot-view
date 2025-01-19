@@ -22,17 +22,6 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val pointState = PointState(
                         step = 100,
-                        labelCordinates = listOf(
-                            /*LabelCordinates(
-                                100f, 100f, Color.Magenta
-                            ), LabelCordinates(
-                                800f, 300f, Color.Blue
-                            ), LabelCordinates(
-                                500f, 100f, Color.Red
-                            ), LabelCordinates(
-                                501f, 350f, Color.Cyan
-                            )*/
-                        )
                     )
                     PointWiser(
                         pointState = pointState
