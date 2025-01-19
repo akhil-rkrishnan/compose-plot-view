@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.from
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -37,28 +39,6 @@ android {
     }
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            afterEvaluate {
-                from(components["release"])
-            }
-        }
-    }
-}
-
-
-/*publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = "com.github.akhil-rkrishnan"
-            artifactId = "pointwise"
-            version = "1.0.7"
-            from(components["release"])
-        }
-    }
-}*/
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -75,4 +55,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }
