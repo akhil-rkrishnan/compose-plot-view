@@ -47,6 +47,18 @@ publishing {
     }
 }
 
+
+/*publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "com.github.akhil-rkrishnan"
+            artifactId = "pointwise"
+            version = "1.0.7"
+            from(components["release"])
+        }
+    }
+}*/
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
