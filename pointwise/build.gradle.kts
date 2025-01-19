@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("maven-publish")
+    `maven-publish`
 }
 
 android {
@@ -39,12 +39,9 @@ android {
 
 publishing {
     publications {
-        create<MavenPublication>("release") {
+        register<MavenPublication>("release") {
             afterEvaluate {
                 from(components["release"])
-                groupId = "com.github.akhil-rkrishnan"
-                artifactId = "pointwise"
-                version = "1.0.3"
             }
         }
     }
