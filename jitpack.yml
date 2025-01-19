@@ -3,4 +3,10 @@ jdk:
 before_install:
   - sdk install java 21.0.3-open
   - sdk use java 21.0.3-open
-  - sdk update
+install:
+  - echo "Running a custom install command"
+  - ./gradlew clean install -xtest
+  - echo "Cleaning gradle"
+  - ./gradlew clean
+  - echo "Building gradle"
+  - ./gradlew build
