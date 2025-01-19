@@ -39,9 +39,12 @@ android {
 
 publishing {
     publications {
-        register<MavenPublication>("release") {
+        create<MavenPublication>("release") {
             afterEvaluate {
                 from(components["release"])
+                groupId = "com.github.akhil-rkrishnan"
+                artifactId = "pointwise"
+                version = "1.0.3"
             }
         }
     }
