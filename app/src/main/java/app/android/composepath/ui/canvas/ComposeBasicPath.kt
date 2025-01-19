@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 
 
 @Composable
-fun BasicPath(modifier: Modifier = Modifier){
+fun BasicPath(modifier: Modifier = Modifier) {
     var target by remember {
         mutableFloatStateOf(0f)
     }

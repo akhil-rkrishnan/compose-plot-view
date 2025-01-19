@@ -1,4 +1,4 @@
-package app.android.composepath.ui.core.theme
+package app.android.pointwise.core.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +29,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun ComposePathTheme(
+fun PointWiseTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

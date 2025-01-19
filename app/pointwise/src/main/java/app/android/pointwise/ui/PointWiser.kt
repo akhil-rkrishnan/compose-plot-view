@@ -1,6 +1,5 @@
-package app.android.composepath.ui.canvas
+package app.android.pointwise.ui
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -13,7 +12,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
@@ -39,19 +37,22 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.android.composepath.data.model.MeasureState
 import app.android.composepath.utils.isActual
 import app.android.composepath.utils.trimDecimals
-import app.android.composepath.R
+import app.android.pointwise.R
+import app.android.pointwise.data.model.PointState
 
-
-private const val TAG = "MeasureView"
-
+/**
+ * Composable for the point wiser
+ * @param modifier Modifier for the composable @see[Modifier]
+ * @param pointState Point state of the current context @see[PointState]
+ * @param view The composable user want to render
+ */
 @Composable
-fun MeasureView(
-    modifier: Modifier = Modifier.fillMaxSize(),
-    measureState: MeasureState = MeasureState(),
-    view: @Composable () -> Unit
+fun PointWiser(
+    modifier: Modifier = Modifier,
+    pointState: PointState = PointState(),
+    view: (@Composable () -> Unit)? = null
 ) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current.density
@@ -62,8 +63,8 @@ fun MeasureView(
         mutableStateOf<Offset?>(null)
     }
 
-    Log.d(TAG, "Screen width and height => $width, $height")
     val textMeasurer = rememberTextMeasurer()
+    // Box frame for canvas
     Box(modifier = modifier.pointerInput(Unit, Unit, {
         detectTapGestures(onDoubleTap = { offset ->
             dragOffset = null
@@ -71,11 +72,9 @@ fun MeasureView(
             if (!dragOffset.isActual()) {
                 dragOffset = offset
             }
-        }, onLongPress = {
-
         })
     })) {
-        view.invoke()
+        view?.invoke()
         AnimatedVisibility(
             visible = dragOffset.isActual(),
             enter = fadeIn() + slideInVertically(),
@@ -99,16 +98,16 @@ fun MeasureView(
             )
         }
         Canvas(modifier = Modifier) {
-            if (measureState.hoverCrossOver.isEnabled) {
+            if (pointState.hoverCrossOver.isEnabled) {
                 DynamicHover(
                     dragOffset = dragOffset,
-                    measureState = measureState,
+                    pointState = pointState,
                     textMeasurer = textMeasurer
                 )
             }
-            //x axis
-            for (axisValue in measureState.step until width.toInt() step measureState.step) {
-                val mainSplit = (axisValue.mod(measureState.step * 2)) == 0
+            //Drawing x axis
+            for (axisValue in pointState.step until width.toInt() step pointState.step) {
+                val mainSplit = (axisValue.mod(pointState.step * 2)) == 0
                 if (mainSplit) {
                     DrawMarkers(
                         color = Color.DarkGray,
@@ -116,7 +115,7 @@ fun MeasureView(
                         end = Offset(axisValue.toFloat(), 25f),
                         strokeWidth = 5f
                     )
-                    if (measureState.showIntersection) {
+                    if (pointState.showIntersection) {
                         DrawIntersection(
                             color = Color.Black.copy(0.1f),
                             start = Offset(axisValue.toFloat(), 0f),
@@ -125,7 +124,7 @@ fun MeasureView(
                         )
                     }
                     DrawText(
-                        value = "${axisValue}x",
+                        text = "${axisValue}x",
                         textMeasurer = textMeasurer,
                         style = TextStyle(color = Color.Black),
                         offset = Offset(axisValue.toFloat() - 23, 30f)
@@ -137,7 +136,7 @@ fun MeasureView(
                         end = Offset(axisValue.toFloat(), 25f),
                         strokeWidth = 3f
                     )
-                    if (measureState.showIntersection) {
+                    if (pointState.showIntersection) {
                         DrawIntersection(
                             color = Color.Black.copy(0.1f),
                             start = Offset(axisValue.toFloat(), 0f),
@@ -146,15 +145,15 @@ fun MeasureView(
                         )
                     }
                     DrawText(
-                        value = "${axisValue}x",
+                        text = "${axisValue}x",
                         textMeasurer = textMeasurer,
                         offset = Offset(axisValue.toFloat() - 23, 30f)
                     )
                 }
             }
-            // y axis
-            for (axisValue in measureState.step until height.toInt() step measureState.step) {
-                val mainSplit = (axisValue.mod(measureState.step * 2)) == 0
+            // Drawing y axis
+            for (axisValue in pointState.step until height.toInt() step pointState.step) {
+                val mainSplit = (axisValue.mod(pointState.step * 2)) == 0
                 if (mainSplit) {
                     DrawMarkers(
                         color = Color.DarkGray,
@@ -162,7 +161,7 @@ fun MeasureView(
                         end = Offset(25f, axisValue.toFloat()),
                         strokeWidth = 5f
                     )
-                    if (measureState.showIntersection) {
+                    if (pointState.showIntersection) {
                         DrawIntersection(
                             color = Color.Black.copy(alpha = 0.1f),
                             start = Offset(0f, axisValue.toFloat()),
@@ -171,7 +170,7 @@ fun MeasureView(
                         )
                     }
                     DrawText(
-                        value = "${axisValue}y",
+                        text = "${axisValue}y",
                         textMeasurer = textMeasurer,
                         style = TextStyle(color = Color.Black),
                         offset = Offset(30f, axisValue.toFloat() - 10)
@@ -183,7 +182,7 @@ fun MeasureView(
                         end = Offset(25f, axisValue.toFloat()),
                         strokeWidth = 3f
                     )
-                    if (measureState.showIntersection) {
+                    if (pointState.showIntersection) {
                         DrawIntersection(
                             color = Color.Black.copy(alpha = 0.1f),
                             start = Offset(0f, axisValue.toFloat()),
@@ -192,16 +191,17 @@ fun MeasureView(
                         )
                     }
                     DrawText(
-                        value = "${axisValue}y",
+                        text = "${axisValue}y",
                         textMeasurer = textMeasurer,
                         offset = Offset(30f, axisValue.toFloat() - 10)
                     )
                 }
             }
-            measureState.labelCordinates.forEach { cordinate ->
+            // Drawing label intersections
+            pointState.labelCordinates.forEach { cordinate ->
                 if (cordinate.showPointIntersection) {
                     val dashStep = 20
-                    for (y in 0 until cordinate.y.toInt() step measureState.dashStep) {
+                    for (y in 0 until cordinate.y.toInt() step pointState.dashStep) {
                         DrawIntersection(
                             cordinate.color,
                             start = Offset(cordinate.x, y.toFloat()),
@@ -209,7 +209,7 @@ fun MeasureView(
                             strokeWidth = 3f
                         )
                     }
-                    for (x in 0 until cordinate.x.toInt() step measureState.dashStep) {
+                    for (x in 0 until cordinate.x.toInt() step pointState.dashStep) {
                         DrawIntersection(
                             cordinate.color,
                             start = Offset(x.toFloat(), cordinate.y),
@@ -218,7 +218,7 @@ fun MeasureView(
                         )
                     }
                 }
-                if (cordinate.x.toInt().mod(measureState.step) != 0) {
+                if (cordinate.x.toInt().mod(pointState.step) != 0) {
                     DrawMarkers(
                         color = cordinate.color,
                         start = Offset(cordinate.x, 0f),
@@ -226,14 +226,14 @@ fun MeasureView(
                         strokeWidth = 6f
                     )
                     DrawText(
-                        value = cordinate.x.toString(),
+                        text = cordinate.x.toString(),
                         style = TextStyle(color = cordinate.color),
                         textMeasurer = textMeasurer,
                         offset = Offset(cordinate.x + 5, 15f)
                     )
                 }
 
-                if (cordinate.y.toInt().mod(measureState.step) != 0) {
+                if (cordinate.y.toInt().mod(pointState.step) != 0) {
                     DrawMarkers(
                         color = cordinate.color,
                         start = Offset(0f, cordinate.y),
@@ -241,7 +241,7 @@ fun MeasureView(
                         strokeWidth = 6f
                     )
                     DrawText(
-                        value = cordinate.y.toString(),
+                        text = cordinate.y.toString(),
                         style = TextStyle(color = cordinate.color),
                         textMeasurer = textMeasurer,
                         offset = Offset(15f, cordinate.y)
@@ -257,12 +257,27 @@ fun MeasureView(
     }
 }
 
+/**
+ * Method to draw the markers in the screen
+ * @param color Color of the marker @see[Color]
+ * @param start Starting offset of the marker @see[Offset]
+ * @param end Ending offset of the marker @see[Offset]
+ * @param strokeWidth Stroke of the marker offset of the marker
+ */
 private fun DrawScope.DrawMarkers(color: Color, start: Offset, end: Offset, strokeWidth: Float) {
     drawLine(color = color, start = start, end = end, strokeWidth = strokeWidth)
 }
 
+/**
+ * Method to draw the text in the screen
+ * @param text Text to display on screen
+ * @param color Color of the marker @see[Color]
+ * @param textMeasurer Text measurer for the text @see[TextMeasurer]
+ * @param style Style of the text @see[TextStyle]
+ * @param offset Position where the text to placed in screen @see[Offset]
+ */
 private fun DrawScope.DrawText(
-    value: String,
+    text: String,
     textMeasurer: TextMeasurer,
     style: TextStyle = TextStyle(
         color = Color.LightGray,
@@ -272,7 +287,7 @@ private fun DrawScope.DrawText(
     offset: Offset
 ) {
     val textLayoutResult: TextLayoutResult = textMeasurer.measure(
-        text = value,
+        text = text,
         style = style
     )
 
@@ -283,8 +298,16 @@ private fun DrawScope.DrawText(
     )
 }
 
+/**
+ * Method to draw the text in the screen
+ * @param text Annotated text to display on screen @see[AnnotatedString]
+ * @param color Color of the marker @see[Color]
+ * @param textMeasurer Text measurer for the text @see[TextMeasurer]
+ * @param style Style of the text @see[TextStyle]
+ * @param offset Position where the text to placed in screen @see[Offset]
+ */
 private fun DrawScope.DrawText(
-    value: AnnotatedString,
+    text: AnnotatedString,
     textMeasurer: TextMeasurer,
     style: TextStyle = TextStyle(
         color = Color.LightGray,
@@ -294,7 +317,7 @@ private fun DrawScope.DrawText(
     offset: Offset
 ) {
     val textLayoutResult: TextLayoutResult = textMeasurer.measure(
-        text = value,
+        text = text,
         style = style
     )
 
@@ -305,6 +328,13 @@ private fun DrawScope.DrawText(
     )
 }
 
+/**
+ * Method to draw the intersection in the screen
+ * @param color Color of the marker @see[Color]
+ * @param start Starting offset of the marker @see[Offset]
+ * @param end Ending offset of the marker @see[Offset]
+ * @param strokeWidth Stroke of the marker offset of the marker
+ */
 private fun DrawScope.DrawIntersection(
     color: Color,
     start: Offset,
@@ -314,31 +344,37 @@ private fun DrawScope.DrawIntersection(
     drawLine(color = color, start = start, end = end, strokeWidth = strokeWidth)
 }
 
+/**
+ * Method to draw the dynamic hover to identify the points in the screen
+ * @param dragOffset Current offset of screen @see[Offset]
+ * @param pointState Point state of the current context @see[PointState]
+ * @param textMeasurer Text measurer for the text @see[TextMeasurer]
+ */
 private fun DrawScope.DynamicHover(
     dragOffset: Offset?,
-    measureState: MeasureState,
+    pointState: PointState,
     textMeasurer: TextMeasurer
 ) {
     if (dragOffset == null) return
     val actualX = dragOffset.x
     val actualY = dragOffset.y
-    for (y in 0 until actualY.toInt() step measureState.dashStep) {
+    for (y in 0 until actualY.toInt() step pointState.dashStep) {
         DrawIntersection(
             color = Color.LightGray,
             start = Offset(actualX, y.toFloat()),
             end = Offset(
                 actualX,
-                (y + (measureState.dashStep / 2)).toFloat()
+                (y + (pointState.dashStep / 2)).toFloat()
             ),
             strokeWidth = 3f
         )
     }
-    for (x in 0 until actualX.toInt() step measureState.dashStep) {
+    for (x in 0 until actualX.toInt() step pointState.dashStep) {
         DrawIntersection(
             color = Color.LightGray,
             start = Offset(x.toFloat(), actualY),
             end = Offset(
-                (x + (measureState.dashStep / 2)).toFloat(),
+                (x + (pointState.dashStep / 2)).toFloat(),
                 actualY
             ),
             strokeWidth = 3f
@@ -351,16 +387,16 @@ private fun DrawScope.DynamicHover(
         }
         append(actualX.trimDecimals())
         append(", ")
-        withStyle(SpanStyle(color = Color(0xff4eb175))){
+        withStyle(SpanStyle(color = Color(0xff4eb175))) {
             append("Y: ")
         }
         append(actualY.trimDecimals())
         append(")")
     }
     DrawText(
-        value = annotatedString,
+        text = annotatedString,
         style = TextStyle(
-            color = measureState.hoverCrossOver.color,
+            color = pointState.hoverCrossOver.color,
             fontSize = 15.sp,
             fontFamily = FontFamily(Font(R.font.roboto_regular))
         ),

@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import app.android.composepath.data.model.MeasureState
-import app.android.composepath.ui.canvas.MeasureView
 import app.android.composepath.ui.core.theme.ComposePathTheme
 import app.android.composepath.utils.hideStatusBar
+import app.android.pointwise.data.model.PointState
+import app.android.pointwise.ui.PointWiser
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposePathTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val measureState = MeasureState(
+                    val pointState = PointState(
                         step = 100,
                         labelCordinates = listOf(
                             /*LabelCordinates(
@@ -34,13 +34,13 @@ class MainActivity : ComponentActivity() {
                             )*/
                         )
                     )
-                    MeasureView(
-                        measureState = measureState
+                    PointWiser(
+                        pointState = pointState
                     ) {
+
                     }
                 }
             }
         }
     }
-
 }
