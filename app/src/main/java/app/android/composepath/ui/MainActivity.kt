@@ -12,6 +12,7 @@ import app.android.composepath.utils.hideStatusBar
 import app.android.pointwise.data.model.PointState
 import app.android.pointwise.ui.PointWiser
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

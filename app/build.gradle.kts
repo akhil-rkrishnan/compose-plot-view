@@ -40,8 +40,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":pointwise"))
-//    implementation("com.github.akhil-rkrishnan:pointwise:1.0.1")
+//    implementation(project(":pointwise"))
+    implementation (libs.pointwise)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

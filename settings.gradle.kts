@@ -11,10 +11,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()
+        maven("https://jitpack.io")
     }
 }
 
 rootProject.name = "ComposePath"
 include(":app")
-include(":pointwise")
+//include(":pointwise")
