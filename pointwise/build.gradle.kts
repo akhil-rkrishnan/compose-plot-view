@@ -7,12 +7,15 @@ plugins {
     `maven-publish`
 }
 
+val versionCompileSdk : Int? by extra
+val versionMinSdk: Int? by extra
+
 android {
     namespace = "app.android.pointwise"
-    compileSdk = 35
+    compileSdk = versionCompileSdk ?: 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = versionMinSdk ?: 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

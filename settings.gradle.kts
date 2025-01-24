@@ -17,4 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ComposePath"
 include(":app")
-//include(":pointwise")
+include(":pointwise")

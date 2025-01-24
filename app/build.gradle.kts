@@ -3,15 +3,21 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+val versionCompileSdk = 35
+val versionMinSdk = 24
+val versionTargetSdk = 34
+extra["versionCompileSdk"] = versionCompileSdk
+extra["versionMinSdk"] = versionMinSdk
+extra["versionTargetSdk"] = versionTargetSdk
 
 android {
     namespace = "app.android.composepath"
-    compileSdk = 35
+    compileSdk = versionCompileSdk
 
     defaultConfig {
         applicationId = "app.android.composepath"
-        minSdk = 24
-        targetSdk = 34
+        minSdk = versionMinSdk
+        targetSdk = versionTargetSdk
         versionCode = 1
         versionName = "1.0"
 
@@ -40,8 +46,8 @@ android {
 }
 
 dependencies {
-//    implementation(project(":pointwise"))
-    implementation (libs.pointwise)
+    implementation(project(":pointwise"))
+//    implementation (libs.pointwise)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
