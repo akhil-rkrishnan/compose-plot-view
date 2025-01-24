@@ -4,6 +4,19 @@ Ever struggled to find the exact coordinates on a canvas or pinpoint touch posit
 
 Save time, avoid the hassle, and focus on what really matters—building great apps. Check it out, give it a try, and let me know what you think. Let’s make Android development smoother together! 🚀
 
+#### Base view with live intersection
+![Basic view with live intersection](https://github.com/user-attachments/assets/e1fffabd-0230-4f7d-96bd-96e9cbdc3cce)
+
+#### Point plotting and intersection with labels
+![Point plotting with label cordinates](https://github.com/user-attachments/assets/68266a1d-eb16-4eac-a148-538659b4d6b4)
+
+#### Sample Canvas View cordinate plotting
+![Sample Canvas Plot view](https://github.com/user-attachments/assets/f9ce10c8-9c61-43d0-9964-bc0c1f4f1ac1)
+
+#### A sample composable widget
+![Sample Composable Widget](https://github.com/user-attachments/assets/d2d2c662-6127-4394-b150-222338bd5e09)
+
+
 # Usage
 ### Composable
     PointWiser(
@@ -14,7 +27,9 @@ Save time, avoid the hassle, and focus on what really matters—building great a
 
 **Modifier** - Modifier of the composable.\
 **pointState** - A state object that holds the specifications for customized plotting. \
-**view** - Here you will pass your own composable.
+**view** - Here you will pass your own composable. \
+
+
 
 ### Point state
 ##### State for the point state.
