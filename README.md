@@ -97,9 +97,9 @@ dependencies {
 buildscript {
     ext {
         compose_version = '1.1.1' // mention your compose version
-        compile_sdk_version = 31 // mention your compile sdk version
-        min_sdk_version = 21 // mention your min sdk version
-        target_sdk_version = compile_sdk_version // mention your target sdk version
+        versionCompileSdk = 35 // mention your compile sdk version
+        versionMinSdk = 24 // mention your min sdk version
+        versionTargetSdk = 34 // mention your target sdk version
     }
 }
 ...
